@@ -1,0 +1,38 @@
+/* Header Navigation */
+.header-nav {
+  background: linear-gradient(to right, #ff758c, #ff7eb3);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 18px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 30px;
+  color: #fff;
+}
+
+.main-nav a {
+  margin-left: 25px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 16px;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.main-nav a:hover {
+  color: #ffe3e3;
+  border-bottom: 2px solid #ffe3e3;
+}

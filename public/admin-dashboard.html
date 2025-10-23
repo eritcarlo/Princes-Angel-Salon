@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard - Princess Angel Salon</title>
+  <link rel="stylesheet" href="admin.css" />
+  
+</head>
+<body>
+  <!-- Header Navigation -->
+  <header class="header-nav">
+    <div class="nav-container">
+      <div class="logo">
+        <h1>Admin Panel</h1>
+      </div>
+      <button class="menu-toggle" id="menuToggle">&#9776;</button>
+    </div>
+
+    <nav class="sidebar" id="sidebar">
+      <button class="close-btn" id="closeSidebar">&times;</button>
+      <a href="#dashboard" class="nav-link">Dashboard</a>
+      <a href="#appointments" class="nav-link">Appointments</a>
+      <a href="#users" class="nav-link">Customers</a>
+      <a href="#stylists" class="nav-link">Stylists</a>
+      <a href="#availability" class="nav-link">Stylist Availability</a>
+      <a href="#services" class="nav-link">Services</a>
+      <a href="#Notifications" class="nav-link">Notify</a>
+      <a href="#feedback" class="nav-link">Feedback</a>
+      <a href="#meet-stylists" class="nav-link">Stylist</a>
+      <a href="#" onclick="logout()">Logout</a>
+    </nav>
+
+    <div class="overlay" id="overlay"></div>
+  </header>
+
+
+
+  <!-- Dashboard -->
+  <section id="dashboard" class="home-section">
+    <h2>Admin Dashboard</h2>
+    <ul>
+      <li><strong>Total Bookings Today:</strong> <span id="total-bookings">0</span></li>
+      <li><strong>Active Stylists:</strong> <span id="active-stylists">0</span></li>
+     <li><strong>Total Feedback:</strong> <span id="total-feedback">0</span></li>
+    </ul>
+  </section>
+
+ <!-- Appointments -->
+  <section id="appointments" class="home-section">
+    <h2>Manage Appointments</h2>
+
+    <!-- Filters -->
+    <div class="filters" style="margin-bottom:1rem;">
+      <label for="filter-date">Date:</label>
+      <input type="date" id="filter-date" />
+
+      <label for="filter-status">Status:</label>
+      <select id="filter-status">
+        <option value="">All</option>
+        <option value="Pending">Pending</option>
+        <option value="Approved">Approved</option>
+         <option value="Completed">Completed</option>
+        <option value="Rescheduled">Rescheduled</option>
+        <option value="Cancelled">Cancelled</option>
+      </select>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Customer</th>
+          <th>Service</th>
+          <th>Stylist</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="appointments-table"></tbody>
+    </table>
+  </section>
+
+  <!-- Customers -->
+  <section id="users" class="home-section">
+    <h2>Customer Management</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="customer-list"></tbody>
+    </table>
+  </section>
+
+  <!-- Stylists -->
+  <section id="stylists" class="home-section">
+    <h2>Stylist Management</h2>
+    <table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Specialty</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="stylist-list"></tbody>
+</table>
+    <form id="stylist-form">
+      <input type="hidden" id="stylist-id" />
+      <input type="text" id="stylist-name" placeholder="Stylist Name" required />
+      <select id="stylist-specialty" required>
+        <option value="">-- Select Specialty --</option>
+        <option value="Hair Color">Hair Color</option>
+        <option value="Haircut">Haircut</option>
+        <option value="Rebond">Rebond</option>
+        <option value="Facial">Facial</option>
+        <option value="Nail Artist">Nail Artist</option>
+      </select>
+      <button type="submit">Save Stylist</button>
+    </form>
+  </section>
+
+  <!-- Stylist Availability -->
+  <section id="availability" class="home-section">
+    <h2>Stylist Availability</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Stylist</th>
+          <th>Day</th>
+          <th>Time Slot</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="availability-table"></tbody>
+    </table>
+    <button onclick="addAvailability()">Add Availability</button>
+  </section>
+
+  <!-- Modal for Add/Edit Availability -->
+  <div id="availability-modal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; border:1px solid #ccc; padding:20px; z-index:1000;">
+    <h3 id="availability-modal-title">Add Stylist Availability</h3>
+    <form id="availability-form">
+      <input type="hidden" id="availability-id" />
+      <label>Stylist ID:</label>
+      <input type="number" id="avail-stylist-id" required />
+      <label>Date:</label>
+      <input type="date" id="avail-day" required />
+      <label>Time:</label>
+      <input type="time" id="avail-time" required />
+      <button type="submit">Save Availability</button>
+      <button type="button" onclick="closeAvailabilityModal()">Cancel</button>
+    </form>
+  </div>
+<!-- Our Services Section -->
+<section id="services" class="home-section">
+  <div class="section-header">
+    <h2>Our Services</h2>
+  </div>
+
+  <div class="carousel-wrapper">
+    <button class="carousel-btn left" onclick="scrollCarousel('services-carousel', -1)">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+
+    <div class="card-container" id="services-carousel">
+      <!-- Dynamic service cards will be rendered here -->
+    </div>
+
+    <button class="carousel-btn right" onclick="scrollCarousel('services-carousel', 1)">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+
+  <div style="text-align: center; margin:30px 0 20px 0;">
+    <!-- Admin Add Service Button -->
+    <button id="add-service-btn" style="padding:8px 15px; background:#d94f4f; color:#fff; border:none; border-radius:6px; cursor:pointer;">
+      <i class="fas fa-plus"></i> Add Service
+    </button>
+  </div>
+</section>
+
+<!-- Modal for Add/Edit Service -->
+<div id="service-modal" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); background:#fff; padding:1.5rem; border-radius:10px; box-shadow:0 5px 20px rgba(0,0,0,0.2); z-index:1000; width:400px;">
+  <h3 id="modal-title">Add Service</h3>
+  <form id="service-form">
+    <input type="hidden" id="service-id">
+
+    <label>Service Name:</label>
+    <input type="text" id="service-name" style="width:100%; padding:8px; margin-bottom:10px;" required>
+
+    <label>Description:</label>
+    <textarea id="service-description" style="width:100%; padding:8px; margin-bottom:10px;"></textarea>
+
+    <label>Price (₱):</label>
+    <input type="number" id="service-price" style="width:100%; padding:8px; margin-bottom:10px;" required>
+
+    <label>Duration (minutes):</label>
+    <input type="number" id="service-duration" style="width:100%; padding:8px; margin-bottom:10px;" min="1" required>
+
+    <label>Upload Image:</label>
+    <input type="file" id="service-image-upload" accept="image/*" style="width:100%; margin-bottom:10px;">
+    <img id="service-image-preview" src="" alt="Preview" style="width:100%; max-height:200px; object-fit:cover; display:none; margin-bottom:10px;">
+
+    <button type="submit" style="background:#28a745; color:#fff; padding:8px 12px; border:none; border-radius:6px;">Save</button>
+    <button type="button" onclick="closeServiceModal()" style="background:#aaa; color:#fff; padding:8px 12px; border:none; border-radius:6px;">Cancel</button>
+  </form>
+</div>
+
+
+<section id="meet-stylists" class="home-section">
+  <div class="section-header">
+    <h2>Meet Our Stylists</h2>
+  </div>
+
+  <div class="carousel-wrapper">
+    <button class="carousel-btn left" id="meet-carousel-left">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <div class="card-container" id="meet-stylists-carousel"></div>
+    <button class="carousel-btn right" id="meet-carousel-right">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+
+  <div style="text-align:center; margin:40px 0 10px 0">
+    <button id="add-meet-stylist-btn" style="padding:8px 15px; background:#d94f4f; color:#fff; border:none; border-radius:6px; cursor:pointer;">
+      <i class="fas fa-plus"></i> Add Stylist
+    </button>
+  </div>
+</section>
+
+
+<!-- Modal for Meet Our Stylists -->
+<div id="meet-stylist-modal" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); background:#fff; padding:1.5rem; border-radius:10px; box-shadow:0 5px 20px rgba(0,0,0,0.2); z-index:1000; width:350px;">
+  <h3 id="meet-stylist-modal-title">Add Stylist</h3>
+  <form id="meet-stylist-form">
+    <input type="hidden" id="meet-stylist-id">
+    <label>Name:</label>
+    <input type="text" id="meet-stylist-name" style="width:100%; padding:8px; margin-bottom:10px;" required>
+    <label>Specialty:</label>
+    <input type="text" id="meet-stylist-specialty" style="width:100%; padding:8px; margin-bottom:10px;" required>
+    <label>Upload Image:</label>
+    <input type="file" id="meet-stylist-image-upload" accept="image/*" style="width:100%; margin-bottom:10px;">
+    <img id="meet-stylist-image-preview" src="" style="width:100%; max-height:200px; object-fit:cover; display:none; margin-bottom:10px;">
+    <button type="submit" style="background:#28a745; color:#fff; padding:8px 12px; border:none; border-radius:6px;">Save</button>
+    <button type="button" id="close-meet-stylist-modal" style="background:#aaa; color:#fff; padding:8px 12px; border:none; border-radius:6px;">Cancel</button>
+  </form>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+  const CLOUD_NAME = "dyv38qf7j";
+  const UPLOAD_PRESET = "princesssalon";
+  let uploadedMeetImageURL = "";
+  let editingMeetId = null;
+
+  const addBtn = document.getElementById("add-meet-stylist-btn");
+  const modal = document.getElementById("meet-stylist-modal");
+  const form = document.getElementById("meet-stylist-form");
+  const preview = document.getElementById("meet-stylist-image-preview");
+  const carousel = document.getElementById("meet-stylists-carousel");
+  const closeModalBtn = document.getElementById("close-meet-stylist-modal");
+  const saveBtn = form.querySelector('button[type="submit"]');
+
+  saveBtn.disabled = true;
+
+  addBtn.addEventListener("click", () => openModal());
+  closeModalBtn.addEventListener("click", () => closeModal());
+
+  function openModal(stylist = null) {
+    modal.style.display = "block";
+    if (stylist) {
+      editingMeetId = stylist.id;
+      document.getElementById("meet-stylist-modal-title").innerText = "Edit Stylist";
+      document.getElementById("meet-stylist-name").value = stylist.name;
+      document.getElementById("meet-stylist-specialty").value = stylist.specialty;
+      document.getElementById("meet-stylist-id").value = stylist.id;
+      uploadedMeetImageURL = stylist.image;
+      preview.src = stylist.image;
+      preview.style.display = "block";
+      saveBtn.disabled = !uploadedMeetImageURL;
+    } else {
+      editingMeetId = null;
+      document.getElementById("meet-stylist-modal-title").innerText = "Add Stylist";
+      form.reset();
+      preview.style.display = "none";
+      uploadedMeetImageURL = "";
+      saveBtn.disabled = true;
+    }
+  }
+
+  function closeModal() {
+    modal.style.display = "none";
+  }
+
+  document.getElementById("meet-stylist-image-upload").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = "block";
+    saveBtn.disabled = true;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", UPLOAD_PRESET);
+
+    try {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`, { method: "POST", body: formData });
+      const data = await res.json();
+      uploadedMeetImageURL = data.secure_url;
+      saveBtn.disabled = false;
+    } catch (err) {
+      console.error(err);
+      alert("Image upload failed");
+      uploadedMeetImageURL = "";
+      saveBtn.disabled = true;
+    }
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const payload = {
+      name: document.getElementById("meet-stylist-name").value,
+      specialty: document.getElementById("meet-stylist-specialty").value,
+      image: uploadedMeetImageURL
+    };
+    const id = editingMeetId;
+    const url = id ? `/api/stylists/${id}` : "/api/stylists";
+    const method = id ? "PATCH" : "POST";
+
+    const res = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      loadMeetStylists();
+      closeModal();
+    } else alert("Error saving stylist");
+  });
+
+  async function loadMeetStylists() {
+    const res = await fetch("/api/stylists");
+    const data = await res.json();
+    carousel.innerHTML = "";
+    if (data.success) {
+      data.stylists.forEach(s => {
+        const card = document.createElement("div");
+        card.className = "stylist-card";
+        card.innerHTML = `
+          <img src="${s.image || ''}" alt="${s.name}">
+          <h3>${s.name}</h3>
+          <p>${s.specialty}</p>
+          <button class="editMeetStylist">Edit</button>
+          <button class="deleteMeetStylist">Delete</button>
+        `;
+        
+        // Add event listeners for buttons
+        card.querySelector(".editMeetStylist").addEventListener("click", () => openModal(s));
+        card.querySelector(".deleteMeetStylist").addEventListener("click", () => deleteMeetStylist(s.id));
+
+        carousel.appendChild(card);
+      });
+    }
+  }
+
+  async function deleteMeetStylist(id) {
+    if (!confirm("Delete this stylist?")) return;
+    const res = await fetch(`/api/stylists/${id}`, { method: "DELETE" });
+    const data = await res.json();
+    if (data.success) loadMeetStylists();
+  }
+
+  window.loadMeetStylists = loadMeetStylists;
+  loadMeetStylists();
+});
+
+</script>
+
+<style>
+/* Section styling */
+#meet-stylists {
+  background-color: #f9f9f9;
+  padding: 60px 20px;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+#meet-stylists h2 {
+  font-size: 32px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+#meet-stylists p {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 40px;
+}
+
+/* Carousel wrapper */
+.carousel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.card-container {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  gap: 20px;
+  padding: 10px;
+}
+
+.card-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* Carousel buttons */
+.carousel-btn {
+  background-color: #d94f4f;
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  padding: 12px 14px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.3s;
+  z-index: 10;
+}
+
+.carousel-btn:hover {
+  background-color: #b33a3a;
+}
+
+.carousel-btn.left {
+  position: absolute;
+  left: -25px;
+}
+
+.carousel-btn.right {
+  position: absolute;
+  right: -25px;
+}
+
+/* Stylist cards */
+.stylist-card {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  width: 200px;
+  padding: 20px;
+  flex-shrink: 0;
+  transition: transform 0.3s, box-shadow 0.3s;
+  text-align: center;
+}
+
+.stylist-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.stylist-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+.stylist-card h3 {
+  font-size: 18px;
+  margin-bottom: 5px;
+  color: #222;
+}
+
+.stylist-card p {
+  color: #777;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+/* Edit/Delete buttons inside cards */
+.stylist-card button {
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  margin: 3px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.3s;
+}
+
+.stylist-card button:hover {
+  background-color: #218838;
+}
+
+/* Delete button styling */
+.stylist-card button.deleteMeetStylist {
+  background-color: #dc3545;
+}
+
+.stylist-card button.deleteMeetStylist:hover {
+  background-color: #c82333;
+}
+
+/* Add stylist main button */
+#add-meet-stylist-btn {
+  padding: 10px 18px;
+  background-color: #d94f4f;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s;
+}
+
+#add-meet-stylist-btn:hover {
+  background-color: #b33a3a;
+}
+
+/* Modal buttons */
+#meet-stylist-modal button[type="submit"] {
+  background-color: #28a745;
+  color: #fff;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+#meet-stylist-modal button[type="submit"]:hover {
+  background-color: #218838;
+}
+
+#meet-stylist-modal #close-meet-stylist-modal {
+  background-color: #aaa;
+}
+
+#meet-stylist-modal #close-meet-stylist-modal:hover {
+  background-color: #888;
+}
+
+</style>
+
+
+<style>
+  .services-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .service-card {
+    width: 250px;
+    background: #ffecec;
+    padding: 15px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .service-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+  .service-card h3 {
+    margin: 10px 0;
+    color: #d64c4c;
+  }
+  .service-card p {
+    margin: 5px 0;
+  }
+  .actions {
+    margin-top: 10px;
+  }
+  .actions button {
+    margin: 5px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .actions button:first-child {
+    background: gold;
+  }
+  .actions button:last-child {
+    background: crimson;
+    color: white;
+  }
+  #add-service-btn {
+    margin-bottom: 20px;
+    background: #d64c4c;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+</style>
+
+<!-- Notifications -->
+<section id="Notifications" class="home-section">
+  <h2>Send Notification</h2>
+  <form id="notification-form" style="margin-bottom:1rem;">
+    <label for="notif-user">Send To:</label>
+    <select id="notif-user" style="width:100%; padding:8px; margin-bottom:0.5rem; border-radius:6px; border:1px solid #ccc;">
+      <option value="">All Users</option>
+      <!-- Users will be loaded dynamically -->
+    </select>
+
+    <label for="notif-type">Notification Type:</label>
+    <select id="notif-type" style="width:100%; padding:8px; margin-bottom:0.5rem; border-radius:6px; border:1px solid #ccc;" required>
+      <option value="">-- Select Type --</option>
+      <option value="Reminder">Reminder</option>
+      <option value="Response">Feedback Response</option>
+      <option value="Promotion">Promotion</option>
+    </select>
+
+    <label for="notif-message">Message:</label>
+    <textarea id="notif-message" placeholder="Enter notification message" required
+      style="width:100%; padding:8px; margin-bottom:0.5rem; border-radius:6px; border:1px solid #ccc;"></textarea>
+
+    <button type="submit" style="background:#d64c4c; color:white; border:none; padding:8px 15px; border-radius:6px; cursor:pointer; float:right;">Send Notification</button>
+  </form>
+
+  <ul id="notifications-list" style="list-style:none; padding-left:0;"></ul>
+</section>
+
+  <!-- Feedback -->
+  <section id="feedback" class="home-section">
+    <h2>User Feedback</h2>
+    <ul id="feedback-list"></ul>
+  </section>
+
+  <script>
+  const user = JSON.parse(localStorage.getItem('loggedInUser'));
+  if (!user || user.role !== 'admin') {
+    alert('Access denied. Admins only.');
+    location.href = '/LoginRegister.html';
+  }
+
+  function logout() {
+    localStorage.clear();
+    location.href = '/LoginRegister.html';
+  }
+
+  // ✅ Add this here
+  function formatDate(dateStr) {
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      month: "short",  // Nov
+      day: "numeric",  // 11
+      year: "numeric"  // 2025
+    });
+  }
+
+  function formatTime(timeStr) {
+    const [hour, minute] = timeStr.split(':');
+    const date = new Date();
+    date.setHours(+hour);
+    date.setMinutes(+minute);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+
+const filterDateInput = document.getElementById('filter-date');
+    const filterStatusInput = document.getElementById('filter-status');
+
+      async function loadAppointments() {
+        const res = await fetch('/api/admin/appointments');
+        const data = await res.json();
+        const tbody = document.getElementById('appointments-table');
+        tbody.innerHTML = '';
+
+        if (data.success) {
+          let filteredAppointments = data.appointments;
+
+          // Apply date filter
+          if (filterDateInput.value) {
+            filteredAppointments = filteredAppointments.filter(app => app.date === filterDateInput.value);
+          }
+
+          // Apply status filter
+          if (filterStatusInput.value) {
+            filteredAppointments = filteredAppointments.filter(app => app.status.toLowerCase() === filterStatusInput.value.toLowerCase());
+          }
+
+         filteredAppointments.forEach(app => {
+              const tr = document.createElement('tr');
+
+              // Only show buttons if not Completed or Cancelled
+              let actionButtons = '';
+              if (app.status !== 'Completed' && app.status !== 'Cancelled') {
+                actionButtons = `
+                  <button class="mark-completed-btn">Completed</button>
+                  <button class="mark-approved-btn">Approved</button>
+                `;
+              }
+
+              tr.innerHTML = `
+                <td>${formatDate(app.date)}</td>
+                <td>${formatTime(app.time)}</td>
+                <td>${app.customer_name}</td>
+                <td>${app.service}</td>
+                <td>${app.stylist}</td>
+                <td>${app.status}</td>
+                <td>${actionButtons}</td>
+              `;
+
+              tbody.appendChild(tr);
+
+              // Add event listeners only if buttons exist
+              const completedBtn = tr.querySelector('.mark-completed-btn');
+              const approvedBtn = tr.querySelector('.mark-approved-btn');
+
+              if (completedBtn) {
+                completedBtn.addEventListener('click', () => markCompleted(app));
+              }
+
+              if (approvedBtn) {
+                approvedBtn.addEventListener('click', () => markApproved(app));
+              }
+            });
+
+        }
+      }
+
+    // Automatically reload appointments when filter changes
+    filterDateInput.addEventListener('change', loadAppointments);
+    filterStatusInput.addEventListener('change', loadAppointments);
+
+    // Initial load
+    window.addEventListener('DOMContentLoaded', loadAppointments);
+    
+async function loadTotalFeedback() {
+  const res = await fetch('/api/admin/total-feedback');
+  const data = await res.json();
+  if (data.success) {
+    document.getElementById('total-feedback').textContent = data.total;
+  }
+}
+    async function loadCustomers() {
+      const res = await fetch('/api/admin/customers');
+      const data = await res.json();
+      const tbody = document.getElementById('customer-list');
+      tbody.innerHTML = '';
+      if (data.success) {
+        data.customers.forEach(c => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${c.name}</td>
+            <td>${c.email}</td>
+            <td>${c.phone}</td>
+            <td><button onclick="deleteCustomer(${c.id})">Delete</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+    }
+
+    async function loadStylists() {
+      const res = await fetch('/api/admin/stylists');
+      const data = await res.json();
+      const list = document.getElementById('stylist-list');
+      list.innerHTML = '';
+      if (data.success) {
+        document.getElementById('active-stylists').textContent = data.stylists.length;
+      data.stylists.forEach(s => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>${s.id}</td>
+    <td>${s.name}</td>
+    <td>${s.specialty}</td>
+    <td>
+      <button onclick="editStylist(${s.id}, '${s.name}', '${s.specialty}')">Edit</button>
+      <button onclick="deleteStylist(${s.id})">Delete</button>
+    </td>
+  `;
+  list.appendChild(tr);
+});
+      }
+    }
+
+  
+async function loadFeedback() {
+  const res = await fetch('/api/admin/feedback');
+  const data = await res.json();
+  const list = document.getElementById('feedback-list');
+  list.innerHTML = '';
+  if (data.success) {
+    data.feedback.forEach(f => {
+      const li = document.createElement('li');
+      const stars = '⭐'.repeat(f.rating);
+      li.innerHTML = `"${f.comment}" - ${f.stylist} ${stars} <button onclick="deleteFeedback(${f.id})">Delete</button>`;
+      list.appendChild(li);
+    });
+  } else {
+    list.innerHTML = '<li>No feedback available.</li>';
+  }
+}
+
+// Add this function to support deleting feedback
+async function deleteFeedback(id) {
+  if (confirm('Delete this feedback?')) {
+const res = await fetch(`/api/admin/feedback/${id}`, { method: 'DELETE' });
+    const result = await res.json();
+    if (result.success) loadFeedback();
+    else alert('Failed to delete feedback');
+  }
+}
+
+    document.getElementById('stylist-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const id = document.getElementById('stylist-id').value;
+      const name = document.getElementById('stylist-name').value;
+      const specialty = document.getElementById('stylist-specialty').value;
+      const url = id ? `/api/admin/update-stylist/${id}` : '/api/admin/add-stylist';
+      const method = id ? 'PATCH' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, specialty })
+      });
+      const result = await res.json();
+      if (result.success) {
+        loadStylists();
+        e.target.reset();
+      } else {
+        alert('Stylist save failed');
+      }
+    });
+
+    function editStylist(id, name, specialty) {
+      document.getElementById('stylist-id').value = id;
+      document.getElementById('stylist-name').value = name;
+      document.getElementById('stylist-specialty').value = specialty;
+    }
+
+    async function deleteStylist(id) {
+      if (confirm('Delete stylist?')) {
+        const res = await fetch(`/api/admin/delete-stylist/${id}`, { method: 'DELETE' });
+        const result = await res.json();
+        if (result.success) loadStylists();
+      }
+    }
+
+    async function deleteCustomer(id) {
+      if (confirm('Delete customer?')) {
+        const res = await fetch(`/api/admin/delete-user/${id}`, { method: 'DELETE' });
+        const result = await res.json();
+        if (result.success) loadCustomers();
+      }
+    }
+
+async function markApproved(app) {
+  try {
+    // 1️⃣ Fetch appointment details
+    const appointmentRes = await fetch(`/api/appointment/${app.id}`);
+    const appointmentData = await appointmentRes.json();
+    if (!appointmentData.success || !appointmentData.appointment) {
+      alert("Could not fetch appointment info.");
+      return;
+    }
+
+    const userId = appointmentData.appointment.user_id;
+
+    // 2️⃣ Fetch user details
+    const userRes = await fetch(`/api/user/${userId}`);
+    const userData = await userRes.json();
+    if (!userData.success || !userData.user) {
+      alert("Could not fetch user info.");
+      return;
+    }
+
+    // 3️⃣ Update status to "Approved"
+    await fetch(`/api/update-appointment-status/${app.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'Approved' })
+    });
+
+    // 4️⃣ Send approval notification
+    await fetch('/api/send-notification', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: userData.user.id,
+        message: `Hello ${userData.user.name}, your appointment for ${appointmentData.appointment.service} with ${appointmentData.appointment.stylist} has been approved.`,
+        type: 'info'
+      })
+    });
+
+    loadAppointments();
+    location.reload();
+  } catch (err) {
+    console.error(err);
+    alert("An error occurred while approving the appointment.");
+  }
+}
+async function markCompleted(app) {
+  try {
+    // 1️⃣ Fetch appointment details
+    const appointmentRes = await fetch(`/api/appointment/${app.id}`);
+    const appointmentData = await appointmentRes.json();
+    if (!appointmentData.success || !appointmentData.appointment) {
+      alert("Could not fetch appointment info.");
+      return;
+    }
+
+    const userId = appointmentData.appointment.user_id;
+
+    // 2️⃣ Fetch user details
+    const userRes = await fetch(`/api/user/${userId}`);
+    const userData = await userRes.json();
+    if (!userData.success || !userData.user) {
+      alert("Could not fetch user info.");
+      return;
+    }
+
+    // 3️⃣ Format date & time
+    const appointmentDate = new Date(`${appointmentData.appointment.date}T${appointmentData.appointment.time}`);
+    const formattedDate = new Intl.DateTimeFormat('en-US', {
+      month: 'long', day: 'numeric', year: 'numeric'
+    }).format(appointmentDate);
+    const formattedTime = new Intl.DateTimeFormat('en-US', {
+      hour: 'numeric', minute: 'numeric', hour12: true
+    }).format(appointmentDate);
+
+    // 4️⃣ Update status to "Completed"
+    await fetch(`/api/update-appointment-status/${app.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'Completed' })
+    });
+
+    // 5️⃣ Send completion notification
+    await fetch('/api/send-notification', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: userData.user.id,
+        message: `Hello ${userData.user.name}, your appointment for ${appointmentData.appointment.service} with ${appointmentData.appointment.stylist} has been completed on ${formattedDate} at ${formattedTime}. Thank you!`,
+        type: 'success'
+      })
+    });
+    
+    loadAppointments();
+    location.reload();
+  } catch (err) {
+    console.error(err);
+    alert("An error occurred while marking the appointment as completed.");
+  }
+}
+
+
+    async function loadStylistAvailability() {
+      const res = await fetch('/api/admin/availability');
+      const data = await res.json();
+      const table = document.getElementById('availability-table');
+      table.innerHTML = '';
+      if (data.success) {
+        data.availability.forEach(slot => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${slot.stylist}</td>
+            <td>${slot.day}</td>
+            <td>${formatTime(slot.time_slot)}</td>
+            <td>${slot.status}</td>
+            <td>
+              <button onclick="editAvailability(${slot.id}, ${slot.stylist_id}, '${slot.day}', '${slot.time_slot}')">Edit</button>
+              <button onclick="deleteAvailability(${slot.id})">Delete</button>
+            </td>
+          `;
+          table.appendChild(tr);
+        });
+      } else {
+        table.innerHTML = '<tr><td colspan="5">No availability records found.</td></tr>';
+      }
+    }
+
+    function addAvailability() {
+      document.getElementById('availability-modal-title').textContent = 'Add Stylist Availability';
+      document.getElementById('availability-id').value = '';
+      document.getElementById('availability-modal').style.display = 'block';
+    }
+
+    function editAvailability(id, stylist_id, day, time_slot) {
+      document.getElementById('availability-modal-title').textContent = 'Edit Stylist Availability';
+      document.getElementById('availability-id').value = id;
+      document.getElementById('avail-stylist-id').value = stylist_id;
+      document.getElementById('avail-day').value = day;
+      document.getElementById('avail-time').value = time_slot;
+      document.getElementById('availability-modal').style.display = 'block';
+    }
+
+    async function deleteAvailability(id) {
+      if (confirm('Delete this availability?')) {
+        const res = await fetch(`/api/admin/delete-availability/${id}`, { method: 'DELETE' });
+        const result = await res.json();
+        if (result.success) loadStylistAvailability();
+      }
+    }
+
+    function closeAvailabilityModal() {
+      document.getElementById('availability-modal').style.display = 'none';
+      document.getElementById('availability-form').reset();
+    }
+
+    document.getElementById('availability-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const id = document.getElementById('availability-id').value;
+      const stylist_id = document.getElementById('avail-stylist-id').value;
+      const day = document.getElementById('avail-day').value;
+      const time_slot = document.getElementById('avail-time').value;
+
+      const url = id ? `/api/admin/update-availability/${id}` : '/api/admin/add-availability';
+      const method = id ? 'PATCH' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stylist_id, day, time_slot })
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        closeAvailabilityModal();
+        loadStylistAvailability();
+      } else {
+        alert('Error saving availability');
+      }
+    });
+// -------- SERVICE MANAGEMENT --------
+
+  async function loadTotalBookingsToday() {
+    try {
+      const res = await fetch('/api/admin/appointments/today/approved/count');
+      const data = await res.json();
+    
+      if (data.success) {
+        document.getElementById('total-bookings').textContent = data.totalTodayApproved;
+      }
+    } catch (err) {
+      console.error('Error fetching today\'s approved bookings:', err);
+    }
+  }
+
+
+  async function loadUsersForNotifications() {
+  try {
+    const res = await fetch('/api/admin/customers'); // or '/api/users' if available
+    const data = await res.json();
+    const userSelect = document.getElementById('notif-user');
+    userSelect.innerHTML = '<option value="">All Users</option>'; // default
+
+    if (data.success) {
+      data.customers.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user.id;
+        option.textContent = `${user.name} (${user.email})`;
+        userSelect.appendChild(option);
+      });
+    }
+  } catch (err) {
+    console.error('Error loading users:', err);
+  }
+}
+
+// Send notification
+document.getElementById('notification-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const userId = document.getElementById('notif-user').value || null; // null = send to all
+  const type = document.getElementById('notif-type').value;
+  const message = document.getElementById('notif-message').value;
+
+  try {
+    const res = await fetch('/api/send-notification', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId, type, message })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      alert('Notification sent successfully!');
+      document.getElementById('notification-form').reset();
+    } else {
+      alert('Failed to send notification.');
+    }
+  } catch (err) {
+    console.error('Error sending notification:', err);
+  }
+});
+
+ 
+
+
+window.addEventListener('DOMContentLoaded', () => {
+  loadAppointments();
+  loadCustomers();
+  loadStylists();
+  loadStylistAvailability();
+  loadFeedback();
+  loadTotalFeedback();
+  loadTotalBookingsToday(); 
+  loadUsersForNotifications();
+});
+
+  </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const CLOUD_NAME = "dyv38qf7j"; 
+  const UPLOAD_PRESET = "princesssalon";
+  let uploadedImageURL = "";
+
+  const addBtn = document.getElementById("add-service-btn");
+  const modal = document.getElementById("service-modal");
+  const form = document.getElementById("service-form");
+  const preview = document.getElementById("service-image-preview");
+  const carousel = document.getElementById("services-carousel");
+  const submitBtn = form.querySelector("button[type='submit']");
+
+  // Open Add Service Modal
+  addBtn.addEventListener("click", () => {
+    document.getElementById("modal-title").textContent = "Add Service";
+    form.reset();
+    document.getElementById("service-id").value = "";
+    preview.style.display = "none";
+    uploadedImageURL = "";
+    modal.style.display = "block";
+  });
+
+  function closeServiceModal() {
+    modal.style.display = "none";
+  }
+
+  // Image preview & upload to Cloudinary
+  document.getElementById("service-image-upload").addEventListener("change", async function() {
+    const file = this.files[0];
+    if (!file) return;
+
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = "block";
+    submitBtn.disabled = true; // disable submit until upload finishes
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", UPLOAD_PRESET);
+
+    try {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`, {
+        method: "POST",
+        body: formData
+      });
+      const data = await res.json();
+      uploadedImageURL = data.secure_url;
+    } catch(err) {
+      console.error("Cloudinary upload failed:", err);
+      alert("Image upload failed");
+      uploadedImageURL = "";
+    } finally {
+      submitBtn.disabled = false; // re-enable submit
+    }
+  });
+
+  // Load services into carousel
+  async function loadServices() {
+    try {
+      const res = await fetch("/api/services");
+      const data = await res.json();
+      carousel.innerHTML = "";
+
+      if (data.success) {
+        data.services.forEach(service => {
+          const card = document.createElement("div");
+          card.className = "service-card";
+          card.innerHTML = `
+            <img src="${service.image || 'placeholder.jpg'}" alt="${service.name}">
+            <h3>${service.name}</h3>
+            <p>${service.description || ""}</p>
+            <p><strong>₱${service.price}</strong> | ${service.duration} mins</p>
+            <div class="actions">
+              <button onclick="editService(${service.id}, '${service.name.replace(/'/g,"\\'")}', '${(service.description||"").replace(/'/g,"\\'")}', ${service.price}, ${service.duration}, '${service.image || ""}')">Edit</button>
+              <button onclick="deleteService(${service.id})">Delete</button>
+            </div>
+          `;
+          carousel.appendChild(card);
+        });
+      }
+    } catch (err) {
+      console.error("Error loading services:", err);
+    }
+  }
+
+  // Add or Update service
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const id = document.getElementById("service-id").value;
+
+    // Prepare payload
+    const payload = {
+      name: document.getElementById("service-name").value,
+      description: document.getElementById("service-description").value,
+      price: document.getElementById("service-price").value,
+      duration: document.getElementById("service-duration").value,
+      image: uploadedImageURL || "placeholder.jpg"
+    };
+
+    const url = id ? `/api/admin/update-service/${id}` : "/api/admin/add-service";
+    const method = id ? "PATCH" : "POST";
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Service saved!");
+        closeServiceModal();
+        uploadedImageURL = "";
+        loadServices();
+      } else {
+        alert("Error saving service.");
+      }
+    } catch (err) {
+      console.error("Save service failed:", err);
+    }
+  });
+
+  // Edit service
+  window.editService = function(id, name, description, price, duration, image) {
+    document.getElementById("modal-title").textContent = "Edit Service";
+    document.getElementById("service-id").value = id;
+    document.getElementById("service-name").value = name;
+    document.getElementById("service-description").value = description;
+    document.getElementById("service-price").value = price;
+    document.getElementById("service-duration").value = duration;
+    uploadedImageURL = image || "";
+    preview.src = image || "";
+    preview.style.display = image ? "block" : "none";
+    modal.style.display = "block";
+  };
+
+  // Delete service
+  window.deleteService = async function(id) {
+    if (!confirm("Delete this service?")) return;
+    try {
+      const res = await fetch(`/api/admin/delete-service/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) {
+        alert("Service deleted!");
+        loadServices();
+      } else {
+        alert("Failed to delete service.");
+      }
+    } catch (err) {
+      console.error("Delete failed:", err);
+    }
+  };
+
+  // Initial load
+  loadServices();
+});
+</script>
+<script>
+  const menuToggle = document.getElementById("menuToggle");
+  const sidebar = document.getElementById("sidebar");
+  const closeSidebar = document.getElementById("closeSidebar");
+  const overlay = document.getElementById("overlay");
+  const navLinks = document.querySelectorAll(".nav-link");
+
+  const openSidebar = () => {
+    sidebar.classList.add("open");
+    overlay.classList.add("active");
+  };
+
+  const closeSidebarFn = () => {
+    sidebar.classList.remove("open");
+    overlay.classList.remove("active");
+  };
+
+  menuToggle.addEventListener("click", openSidebar);
+  closeSidebar.addEventListener("click", closeSidebarFn);
+  overlay.addEventListener("click", closeSidebarFn);
+  navLinks.forEach(link => link.addEventListener("click", closeSidebarFn));
+</script>
+</body>
+</html>

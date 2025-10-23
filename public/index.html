@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Princess Angel Salon - Home</title>
+  <link rel="stylesheet" href="index.css" />
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="nav.css" />
+</head>
+<body>
+  <!-- Header Navigation -->
+  <header class="header-nav">
+    <div class="nav-container">
+      <div class="logo">
+        <h1>Princess Angel Salon</h1>
+      </div>
+      <nav class="main-nav">
+        <a href="#about">About Us</a>
+        <a href="#services">Services</a>
+        <a href="#stylists">Stylists</a>
+        <a href="LoginRegister.html">Login/Register</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section id="dashboard" class="home-section">
+    <h2>Welcome to Princess Angel Salon</h2>
+    <p>Experience beauty and confidence with our premium salon services and expert stylists. Book your appointment today and indulge in a relaxing and glamorous transformation!</p>
+  </section>
+
+  <!-- About Us Section -->
+  <section id="about" class="home-section">
+    <h2>About Us</h2>
+    <p>Princess Angel Salon is dedicated to bringing out the best in you with our full range of beauty services. Our team of experienced stylists and beauticians ensure you get the look you deserve.</p>
+  </section>
+
+<!-- Our Services Section -->
+<!-- Our Services Section -->
+<section id="services" class="home-section">
+  <div class="section-header">
+    <h2>Our Services</h2>
+  </div>
+
+  <div class="carousel-wrapper">
+    <button class="carousel-btn left" onclick="scrollCarousel('services-container', -1)">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+
+    <div class="card-container" id="services-container">
+      <!-- Dynamic service cards will be rendered here -->
+    </div>
+
+    <button class="carousel-btn right" onclick="scrollCarousel('services-container', 1)">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+</section>
+
+<!-- Meet Our Stylists Section -->
+<section id="meet-stylists" class="home-section">
+  <div class="section-header">
+    <h2>Meet Our Stylists</h2>
+  </div>
+
+  <div class="carousel-wrapper">
+    <button class="carousel-btn left" onclick="scrollCarousel('meet-stylists-carousel', -1)">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+
+    <div class="card-container" id="meet-stylists-carousel">
+      <!-- Dynamic stylist cards will be rendered here -->
+    </div>
+
+    <button class="carousel-btn right" onclick="scrollCarousel('meet-stylists-carousel', 1)">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const container = document.getElementById("services-container");
+
+  async function loadServices() {
+    container.innerHTML = ""; // clear existing cards
+
+    try {
+      const res = await fetch("/api/services"); // your API endpoint
+      const data = await res.json();
+
+      if (!data.success) throw new Error("Failed to fetch services");
+
+      data.services.forEach(service => {
+        const card = document.createElement("div");
+        card.className = "service-card";
+        card.innerHTML = `
+          <img src="${service.image || ''}" alt="${service.name}">
+          <h3>${service.name}</h3>
+          <p>${service.description}</p>
+          <p class="service-price">Price: ₱${service.price}</p>
+          <p class="service-duration">Duration: ${service.duration}</p>
+        `;
+        container.appendChild(card);
+      });
+
+    } catch (err) {
+      console.error("Error loading services:", err);
+      container.innerHTML = "<p style='color:red; text-align:center;'>Failed to load services.</p>";
+    }
+  }
+
+  loadServices();
+});
+
+// Scroll carousel function
+function scrollCarousel(containerId, direction) {
+  const container = document.getElementById(containerId);
+  const scrollAmount = 280; // width of card + gap
+  container.scrollBy({ left: direction * scrollAmount, behavior: "smooth" });
+}
+const carousel = document.getElementById("meet-stylists-carousel");
+
+async function loadMeetStylists() {
+  if (!carousel) return; // prevents errors if container is missing
+
+  const res = await fetch("/api/stylists");
+  const data = await res.json();
+  carousel.innerHTML = "";
+
+  if (data.success) {
+    data.stylists.forEach(s => {
+      const card = document.createElement("div");
+      card.className = "stylist-card";
+      card.innerHTML = `
+        <img src="${s.image || 'images/default-stylist.jpg'}" alt="${s.name}">
+        <h3>${s.name}</h3>
+        <p>${s.specialty}</p>
+
+      `;
+      carousel.appendChild(card);
+    });
+  }
+}
+
+// Call after DOM is ready
+document.addEventListener("DOMContentLoaded", () => {
+  loadMeetStylists();
+});
+
+</script>
+
+</body>
+</html>

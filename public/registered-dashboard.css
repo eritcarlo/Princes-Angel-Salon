@@ -1,0 +1,280 @@
+/* Import Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Playfair+Display:wght@600&display=swap');
+
+/* General Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: url('Image/Background.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: #333;
+  line-height: 1.6;
+  position: relative;
+  z-index: 0;
+}
+
+/* Overlay for softer readability */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(255, 245, 247, 0.85);
+  z-index: -1;
+}
+
+
+
+/* Header */
+.header-nav {
+  background: linear-gradient(to right, #f857a6, #ff5858);
+  color: #fff;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.logo h1 {
+  font-size: 22px;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Hamburger */
+.hamburger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.hamburger-line {
+  width: 25px;
+  height: 3px;
+  background: white;
+  border-radius: 2px;
+}
+
+/* Side Nav - slides from the right */
+.side-nav {
+  position: fixed;
+  top: 0;
+  right: -260px;
+  width: 240px;
+  height: 100%;
+  background: linear-gradient(to right, #f857a6, #ff5858);
+  box-shadow: -2px 0 6px rgba(0, 0, 0, 0.2);
+  transition: right 0.3s ease;
+  z-index: 1001;
+  color: #fff;
+}
+
+.side-nav.open {
+  right: 0;
+}
+
+.side-nav-inner {
+  padding: 20px;
+}
+
+.close-side {
+  background: none;
+  border: none;
+  font-size: 30px;
+  float: right;
+  cursor: pointer;
+  color: #fff;
+}
+
+.side-links {
+  list-style: none;
+  padding: 0;
+  margin-top: 40px;
+}
+
+.side-links li {
+  margin: 15px 0;
+}
+
+.side-links a {
+  text-decoration: none;
+  color: #fff;
+  font-weight: 500;
+  transition: opacity 0.2s ease;
+}
+
+.side-links a:hover {
+  opacity: 0.7;
+}
+
+/* Backdrop */
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+  z-index: 1000;
+}
+
+.backdrop.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+
+/* Section Container (Dashboard Cards) */
+.home-section {
+  max-width: 1000px;
+  margin: 60px auto;
+  padding: 40px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+/* Section Title + Optional Description */
+.home-section h2 {
+  font-size: 28px;
+  font-family: 'Playfair Display', serif;
+  color: #d94f4f;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.home-section p.section-desc {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 25px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th, td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+th {
+  background-color: #ffd6e0;
+  color: #a33d52;
+}
+
+td button {
+  background-color: #d94f4f;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin: 0 5px;
+}
+
+td button:hover {
+  background-color: #a83333;
+}
+
+/* Forms */
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+form label {
+  margin-top: 10px;
+  font-weight: 500;
+  color: #444;
+  text-align: left;
+  width: 100%;
+  max-width: 400px;
+}
+
+form input,
+form select,
+form textarea {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-top: 5px;
+  width: 100%;
+  max-width: 400px;
+}
+
+form button {
+  margin-top: 15px;
+  padding: 12px 20px;
+  background-color: #d94f4f;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+form button:hover {
+  background-color: #a83333;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+/*  .nav-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .main-nav {
+    margin-top: 10px;
+  }
+
+  .main-nav a {
+    margin: 8px 12px 0 0;
+  }
+*/
+  .home-section {
+    padding: 20px;
+  }
+
+  form input, form label, form select, form textarea {
+    max-width: 100%;
+  }
+}
+
+
+

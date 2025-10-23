@@ -1,0 +1,18 @@
+[
+  {
+    "type": "sqlite",
+    "path": "c:\\Users\\Joshua\\Desktop\\Princess-Angel-Salon\\salon.db"
+  },
+  {
+    "type": "sqlite",
+    "path": "d:\\Downloads\\Princess-Angel-Salon\\salon.db"
+  },
+  {
+    "type": "sqlite",
+    "path": "c:\\Users\\Icarl\\Downloads\\Princess-Angel-Salon 12\\Princess-Angel-Salon\\salon.db"
+  },
+  {
+    "type": "sqlite",
+    "path": "c:\\Users\\Icarl\\Desktop\\Princess-Angel-Salon\\salon.db"
+  }
+]

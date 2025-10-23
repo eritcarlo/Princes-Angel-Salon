@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login & Register - Princess Angel Salon</title>
+  <link rel="stylesheet" href="LoginRegister.css" />
+    <link rel="stylesheet" href="nav.css">
+  <style>
+    .hidden { display: none; }
+    .active { font-weight: bold; }
+    .error { color: red; font-size: 0.9em; }
+    .valid { color: green; font-size: 0.9em; }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80%;
+      overflow-y: auto;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .modal-content h2 {
+      margin-top: 0;
+      color: #c71585;
+      text-align: center;
+    }
+    .close-btn {
+      float: right;
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+      cursor: pointer;
+    }
+    .close-btn:hover {
+      color: #c71585;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header Navigation -->
+  <header class="header-nav">
+    <div class="nav-container">
+      <div class="logo">
+        <h1>Princess Angel Salon</h1>
+      </div>
+      <nav class="main-nav">
+        <a href="index.html#about">About Us</a>
+        <a href="index.html#services">Services</a>
+        <a href="index.html#stylists">Stylists</a>
+        <a href="LoginRegister.html">Login/Register</a>
+      </nav>
+    </div>
+  </header>
+  <div class="auth-container">
+    <div class="form-toggle">
+      <button id="show-login" class="active">Login</button>
+      <button id="show-register">Register</button>
+    </div>
+
+    <!-- Login Form -->
+    <form id="login-form" class="auth-form">
+      <h2>Login</h2>
+      <label for="login-email">Email:</label>
+      <input type="email" id="login-email" name="email" required />
+
+      <label for="login-password">Password:</label>
+      <input type="password" id="login-password" name="password" required />
+
+      <button type="submit">Login</button>
+      <div class="forgotContainer">
+         <a href="forgot-password.html" class="forgotPassword">Forgot Password?</a>
+      </div>
+    </form>
+
+  <!-- OTP Modal -->
+  <div id="otpModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
+    <div style="background:#fff; padding:25px; border-radius:10px; width:320px; text-align:center;">
+      <h3>Enter OTP</h3>
+      <p>We’ve sent a 4-digit code to your email.</p>
+
+      <!-- 4 OTP Inputs -->
+      <div style="display:flex; justify-content:space-between; margin:15px 0;">
+        <input type="text" maxlength="1" class="otp-field" id="otp1" style="width:60px; height:60px; text-align:center; font-size:24px; border:1px solid #ccc; border-radius:8px;">
+        <input type="text" maxlength="1" class="otp-field" id="otp2" style="width:60px; height:60px; text-align:center; font-size:24px; border:1px solid #ccc; border-radius:8px;">
+        <input type="text" maxlength="1" class="otp-field" id="otp3" style="width:60px; height:60px; text-align:center; font-size:24px; border:1px solid #ccc; border-radius:8px;">
+        <input type="text" maxlength="1" class="otp-field" id="otp4" style="width:60px; height:60px; text-align:center; font-size:24px; border:1px solid #ccc; border-radius:8px;">
+      </div>
+
+      <button id="verifyOtpBtn" style="margin-top:10px; background:#c71585; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer;">Verify</button>
+
+      <p id="resendTimer" style="margin-top:10px; color:gray;">Resend in 2:00</p>
+      <button id="resendBtn" style="display:none; margin-top:10px; background:#007bff; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">Resend OTP</button>
+    </div>
+  </div>
+
+
+    <!-- Register Form -->
+    <form id="register-form" class="auth-form hidden">
+      <h2>Register</h2>
+      <label for="reg-name">Full Name:</label>
+      <input type="text" id="reg-name" name="name" required />
+
+      <label for="reg-email">Email:</label>
+      <input type="email" id="reg-email" name="email" required />
+      <div id="email-error" class="error hidden">Email must be a Gmail address</div>
+
+      <label for="reg-phone">Phone Number:</label>
+      <input type="tel" id="reg-phone" name="phone" required />
+      <div id="phone-error" class="error hidden">Phone must be 11 digits starting with 09</div>
+
+      <label for="reg-password">Password:</label>
+      <div style="display:flex; gap:5px; align-items:center;">
+        <input type="password" id="reg-password" name="password" required />
+        <button type="button" id="toggle-password" style="padding:4px;">Show</button>
+      </div>
+      <div id="password-error" class="error hidden">
+        Must be at least 8 characters, contain uppercase, lowercase, number, and special character
+      </div>
+
+      <!-- Terms and Conditions -->
+      <div style="margin-top:10px;">
+        <input type="checkbox" id="terms" required />
+        <label for="terms">I agree to the 
+          <a href="#" id="open-terms">Terms and Conditions</a>
+        </label>
+      </div>
+
+      <button type="submit">Register</button>
+    </form>
+  </div>
+
+  <!-- Terms Modal -->
+  <div id="terms-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" id="close-terms">&times;</span>
+      <h2>Terms & Conditions</h2>
+      <p>By registering an account with Princess Angel Salon, you agree to:</p>
+      <ul>
+        <li>Provide accurate and truthful personal information.</li>
+        <li>Attend appointments on time and cancel at least 24 hours in advance if needed.</li>
+        <li>Use the booking system respectfully and honestly.</li>
+        <li>Understand that your data is used only for booking and communication.</li>
+        <li>Accept that these terms may be updated by the salon as needed.</li>
+      </ul>
+      <p>Thank you for trusting Princess Angel Salon 💖</p>
+    </div>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const showLogin = document.getElementById('show-login');
+    const showRegister = document.getElementById('show-register');
+
+    const emailInput = document.getElementById('reg-email');
+    const phoneInput = document.getElementById('reg-phone');
+    const passwordInput = document.getElementById('reg-password');
+
+    const emailError = document.getElementById('email-error');
+    const phoneError = document.getElementById('phone-error');
+    const passwordError = document.getElementById('password-error');
+
+    const togglePassword = document.getElementById('toggle-password');
+
+    // Modal
+    const termsModal = document.getElementById('terms-modal');
+    const openTerms = document.getElementById('open-terms');
+    const closeTerms = document.getElementById('close-terms');
+
+    openTerms.addEventListener('click', (e) => {
+      e.preventDefault();
+      termsModal.style.display = 'flex';
+    });
+
+    closeTerms.addEventListener('click', () => {
+      termsModal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (e) => {
+      if (e.target === termsModal) termsModal.style.display = 'none';
+    });
+
+    // Toggle between forms
+    showLogin.addEventListener('click', () => {
+      loginForm.classList.remove('hidden');
+      registerForm.classList.add('hidden');
+      showLogin.classList.add('active');
+      showRegister.classList.remove('active');
+    });
+
+    showRegister.addEventListener('click', () => {
+      loginForm.classList.add('hidden');
+      registerForm.classList.remove('hidden');
+      showLogin.classList.remove('active');
+      showRegister.classList.add('active');
+    });
+
+    // Live email validation
+    emailInput.addEventListener('input', () => {
+      if (/^[\w.%+-]+@gmail\.com$/i.test(emailInput.value)) {
+        emailError.classList.add('hidden');
+      } else {
+        emailError.classList.remove('hidden');
+      }
+    });
+
+    // Live phone validation
+    phoneInput.addEventListener('input', () => {
+      if (/^09\d{9}$/.test(phoneInput.value)) {
+        phoneError.classList.add('hidden');
+      } else {
+        phoneError.classList.remove('hidden');
+      }
+    });
+
+    // Live password validation
+    passwordInput.addEventListener('input', () => {
+      if (/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(passwordInput.value)) {
+        passwordError.classList.add('hidden');
+      } else {
+        passwordError.classList.remove('hidden');
+      }
+    });
+
+    // Toggle password visibility
+    togglePassword.addEventListener('click', () => {
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        togglePassword.textContent = 'Hide';
+      } else {
+        passwordInput.type = 'password';
+        togglePassword.textContent = 'Show';
+      }
+    });
+
+   /* // LOGIN
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const result = await res.json();
+        if (result.success) {
+          localStorage.setItem('loggedInUser', JSON.stringify(result.user));
+          const role = result.user.role;
+          if (role === 'admin') window.location.href = 'admin-dashboard.html';
+          else if (role === 'superadmin') window.location.href = 'superadmin-dashboard.html';
+          else window.location.href = 'registered-dashboard.html';
+        } else {
+          alert(result.message || 'Login failed.');
+        }
+      } catch (e) {
+        console.log(e.message);
+        alert('Login failed. Server error.');
+      }
+    });*/
+
+    // REGISTER
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('reg-name').value;
+      const email = emailInput.value;
+      const phone = phoneInput.value;
+      const password = passwordInput.value;
+
+      try {
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, phone, password })
+        });
+        const result = await res.json();
+        if (result.success) {
+          // Auto-login after register
+          
+          const loginRes = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+          const loginResult = await loginRes.json();
+          if (loginResult.success) {
+            localStorage.setItem('loggedInUser', JSON.stringify(loginResult.user));
+            const userRole = loginResult.user.role;
+            if (userRole === 'admin') window.location.href = 'admin-dashboard.html';
+            else if (userRole === 'superadmin') window.location.href = 'superadmin-dashboard.html';
+            else window.location.href = 'registered-dashboard.html';
+          } else {
+            alert('Login after registration failed.');
+          }
+        } else {
+          alert(result.error || result.message || 'Registration failed.');
+        }
+      } catch {
+        alert('Registration failed. Server error.');
+      }
+    });
+  
+    const otpModal = document.getElementById('otpModal');
+    const resendBtn = document.getElementById('resendBtn');
+    const resendTimer = document.getElementById('resendTimer');
+    const otpFields = document.querySelectorAll('.otp-field');
+    let countdown;
+
+
+
+/// 🔐 LOGIN with 2FA CHECK
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+
+  try {
+    // Step 1: Check if 2FA is enabled
+    const secRes = await fetch('/api/security-status');
+    const secData = await secRes.json();
+    const is2FAEnabled = secData.enabled === 1;
+
+    // Step 2: Attempt login
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const result = await res.json();
+
+    if (result.success && is2FAEnabled && result.requireOTP) {
+      // 2FA enabled → show OTP modal
+      localStorage.setItem('pending2FAUser', JSON.stringify(result.user)); // TEMP store user
+      otpModal.style.display = 'flex';
+      startResendTimer();
+    } else if (result.success) {
+      // 2FA disabled → login directly
+      localStorage.setItem('loggedInUser', JSON.stringify(result.user));
+      handleRedirect(result.user.role);
+    } else {
+      alert(result.message || 'Login failed.');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Server error during login.');
+  }
+});
+
+// Verify OTP
+document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
+  const email = document.getElementById('login-email').value;
+  const otp = Array.from(otpFields).map(f => f.value).join('');
+  if (otp.length < 4) return alert('Please enter all 4 digits.');
+
+  try {
+    const res = await fetch('/api/verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, otp })
+    });
+    const result = await res.json();
+
+    if (result.success) {
+      // OTP valid → finalize login
+      localStorage.setItem('loggedInUser', JSON.stringify(result.user));
+      localStorage.removeItem('pending2FAUser');
+
+      otpModal.style.display = 'none';
+      handleRedirect(result.user.role);
+    } else {
+      alert(result.message || 'Invalid OTP.');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Server error during OTP verification.');
+  }
+});
+
+// Resend OTP
+resendBtn.addEventListener('click', async () => {
+  const email = document.getElementById('login-email').value;
+  try {
+    const res = await fetch('/api/resend-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const result = await res.json();
+    if (result.success) {
+      alert('OTP resent!');
+      startResendTimer();
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Server error while resending OTP.');
+  }
+});
+
+// Timer for resend
+function startResendTimer() {
+  let timeLeft = 120;
+  resendBtn.style.display = 'none';
+  resendTimer.style.display = 'block';
+  clearInterval(countdown);
+  countdown = setInterval(() => {
+    const m = Math.floor(timeLeft / 60);
+    const s = timeLeft % 60;
+    resendTimer.textContent = `Resend in ${m}:${s.toString().padStart(2, '0')}`;
+    if (timeLeft-- <= 0) {
+      clearInterval(countdown);
+      resendTimer.style.display = 'none';
+      resendBtn.style.display = 'inline-block';
+    }
+  }, 1000);
+}
+
+// Redirect user after successful login
+function handleRedirect(role) {
+  if (role.toLowerCase() === 'admin') window.location.href = 'admin-dashboard.html';
+  else if (role.toLowerCase() === 'superadmin') window.location.href = 'superadmin-dashboard.html';
+  else window.location.href = 'registered-dashboard.html';
+}
+
+
+  </script>
+</body>
+</html>

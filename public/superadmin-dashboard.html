@@ -1,0 +1,637 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Super Admin Panel - Princess Angel Salon</title>
+  <link rel="stylesheet" href="superadmin.css" />
+  <style>
+    /* ===== Modal Styling ===== */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      width: 400px;
+      max-width: 90%;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    .modal-content h3 {
+      margin-top: 0;
+    }
+    .modal-content input {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .modal-content button {
+      margin: 5px;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .modal-content button.save-btn {
+      background: #28a745;
+      color: white;
+    }
+    .modal-content button.cancel-btn {
+      background: #dc3545;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+<!-- nav -->
+<header class="header-nav">
+  <div class="nav-container">
+        <!-- Title on the right -->
+    <div class="logo">
+      <h1>Super Admin Panel</h1>
+    </div>
+    <!-- Hamburger on the left -->
+    <button class="hamburger" id="hamburger" aria-label="Open menu" aria-controls="sideNav" aria-expanded="false">
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+    </button>
+
+
+  </div>
+
+  <!-- Sidebar navigation -->
+  <nav id="sideNav" class="side-nav" aria-hidden="true">
+    <div class="side-nav-inner">
+      <button class="close-side" id="closeSide" aria-label="Close menu">&times;</button>
+      <ul class="side-links">
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#admin-accounts">Admin Accounts</a></li>
+        <li><a href="#security">Security</a></li>
+        <li><a href="#reports">Reports</a></li>
+        <li><a href="#config">System Settings</a></li>
+        <li><a href="#" id="logoutBtn" onclick="logout()">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Backdrop -->
+  <div class="backdrop" id="backdrop"></div>
+</header>
+
+
+
+  <!-- System Overview -->
+  <section id="overview" class="home-section">
+    <h2>System Overview</h2>
+    <ul>
+      <li><strong>Total Admins:</strong> <span id="overviewAdmins">0</span></li>
+      <li><strong>Total Customers:</strong> <span id="overviewCustomers">0</span></li>
+      <li><strong>Total Stylists:</strong> <span id="overviewStylists">0</span></li>
+      <li><strong>Total Appointments:</strong> <span id="overviewAppointments">0</span></li>
+    </ul>
+  </section>
+
+ 
+
+  <!-- ADMIN ACCOUNTS SECTION -->
+  <section id="admin-accounts" class="home-section">
+    <h2>Admin Accounts</h2>
+    <table id="admins-table" border="1" cellpadding="5">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone Number</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h3>Add New Admin</h3>
+    <input type="text" id="adminName" placeholder="Name" required>
+    <input type="email" id="adminEmail" placeholder="Email" required pattern="[a-zA-Z0-9._%+-]+@gmail\.com$" title="Email must be a Gmail address">
+    <input type="tel" id="adminPhone" placeholder="Phone" required pattern="09[0-9]{9}" title="Phone number must be 11 digits starting with 09">
+    <input type="password" id="adminPassword" placeholder="Password" required>
+    <button onclick="addAdmin()">Add Admin</button>
+  </section>
+
+  <!-- Edit Admin Modal -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <h3>Edit Admin</h3>
+      <input type="password" id="editPassword" placeholder="New Password (leave blank to keep current)">
+      <input type="text" id="editName" placeholder="Name">
+      <input type="email" id="editEmail" placeholder="Email">
+      <input type="tel" id="editPhone" placeholder="Phone">
+      <button class="save-btn" onclick="saveAdminEdit()">Save</button>
+      <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    let editingAdminId = null;
+
+    // ========== OVERVIEW ==========
+    async function loadOverview() {
+      try {
+        const res = await fetch('/superadmin/overview');
+        const data = await res.json();
+        document.getElementById('overviewAdmins').textContent = data.admins;
+        document.getElementById('overviewCustomers').textContent = data.customers;
+        document.getElementById('overviewStylists').textContent = data.stylists;
+        document.getElementById('overviewAppointments').textContent = data.appointments;
+      } catch (err) {
+        console.error('Error loading overview:', err);
+      }
+    }
+
+    // ========== ADMIN ACCOUNTS ==========
+    async function loadAdmins() {
+      const res = await fetch('/superadmin/admins');
+      const admins = await res.json();
+      const tbody = document.querySelector('#admins-table tbody');
+      tbody.innerHTML = '';
+      admins.forEach(admin => appendAdminRow(admin));
+    }
+
+    function appendAdminRow(admin) {
+      const tbody = document.querySelector('#admins-table tbody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${admin.id}</td>
+        <td>${admin.name}</td>
+        <td>${admin.email}</td>
+        <td>${admin.phone ?? ''}</td>
+        <td>
+          <button onclick="openEditModal(${admin.id}, '${admin.name}', '${admin.email}', '${admin.phone ?? ''}')">Edit</button>
+          <button onclick="deleteAdmin(${admin.id})">Delete</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    async function addAdmin() {
+      const name = document.getElementById('adminName').value.trim();
+      const email = document.getElementById('adminEmail').value.trim();
+      const phone = document.getElementById('adminPhone').value.trim();
+      const password = document.getElementById('adminPassword').value.trim();
+
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+      const phoneRegex = /^09\d{9}$/;
+
+      if (!name || !email || !phone || !password) {
+        alert('All fields are required');
+        return;
+      }
+      if (!emailRegex.test(email)) {
+        alert('Email must be a Gmail address');
+        return;
+      }
+      if (!phoneRegex.test(phone)) {
+        alert('Phone number must be 11 digits starting with 09');
+        return;
+      }
+
+      try {
+        const res = await fetch('/superadmin/admins', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, phone, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          appendAdminRow(data.admin);
+          loadOverview(); 
+          document.getElementById('adminName').value = '';
+          document.getElementById('adminEmail').value = '';
+          document.getElementById('adminPhone').value = '';
+          document.getElementById('adminPassword').value = '';
+          alert(data.message);
+        } else {
+          alert('Error adding admin: ' + (data.error || data.message));
+        }
+      } catch (err) {
+        alert('Network error: ' + err.message);
+      }
+    }
+
+    // ===== MODAL FUNCTIONS =====
+    function openEditModal(id, name, email, phone) {
+      editingAdminId = id;
+      document.getElementById('editPassword').value = '';
+      document.getElementById('editName').value = name;
+      document.getElementById('editEmail').value = email;
+      document.getElementById('editPhone').value = phone;
+      document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('editModal').style.display = 'none';
+      editingAdminId = null;
+    }
+
+async function saveAdminEdit() {
+  const password = document.getElementById('editPassword').value.trim();
+  const name = document.getElementById('editName').value.trim();
+  const email = document.getElementById('editEmail').value.trim();
+  const phone = document.getElementById('editPhone').value.trim();
+
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+  const phoneRegex = /^09\d{9}$/;
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+
+  if (!name || !email || !phone) {
+    alert('Name, Email and Phone are required');
+    return;
+  }
+  if (!emailRegex.test(email)) {
+    alert('Email must be a Gmail address');
+    return;
+  }
+  if (!phoneRegex.test(phone)) {
+    alert('Phone number must be 11 digits starting with 09');
+    return;
+  }
+  if (password && !passwordRegex.test(password)) {
+    alert('Password must be at least 8 characters long, contain uppercase, lowercase, number, and special character');
+    return;
+  }
+
+  // ✅ Always include password (even if empty string)
+  const body = { name, email, phone, password };
+
+  const res = await fetch(`/superadmin/admins/${editingAdminId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+
+  const data = await res.json();
+  if (res.ok && data.success) {
+    closeModal();
+    loadAdmins();
+    loadOverview();
+    alert('Admin updated successfully');
+  } else {
+    alert('Error updating admin: ' + (data.error || data.message));
+  }
+}
+
+    async function deleteAdmin(id) {
+      if (confirm('Are you sure you want to delete this admin?')) {
+        const res = await fetch(`/superadmin/admins/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          loadAdmins();
+          loadOverview(); 
+        } else {
+          alert('Error deleting admin: ' + (data.error || data.message));
+        }
+      }
+    }
+
+    // Auto-load on page open
+    document.addEventListener('DOMContentLoaded', () => {
+      loadOverview();
+      loadAdmins();
+      setInterval(loadOverview, 5000);
+    });
+  </script>
+
+  <!-- Security Settings -->
+  <section id="security" class="home-section">
+    <h2>Security Settings</h2>
+    <ul>
+      <!--    <li>Password Policy: Minimum 8 characters <button>Modify</button></li>-->
+  
+      <li>
+        <div>
+          Two-Factor Authentication:
+          <span id="status">Enabled</span>
+        </div>
+        <button id="toggleBtn" onclick="toggleSetting(1)">Disable</button>
+      </li>
+
+      <!--<li>CAPTCHA on Login: Active <button>Configure</button></li>-->
+    </ul>
+  </section>
+
+  <!-- Reports -->
+<!-- 📊 System Reports -->
+<section id="reports" class="home-section">
+  <h2>System Reports</h2>
+  <ul>
+    <li><button onclick="downloadPDF('appointments')">📅 Download Appointments Report</button></li>
+    <li><button onclick="downloadPDF('users')">👥 Download Users Report</button></li>
+    <li><button onclick="downloadPDF('services')">💇 Download Services Report</button></li>
+  </ul>
+
+  <p id="reportStatus" style="margin-top: 10px; color: #007bff; font-weight: bold;"></p>
+</section>
+
+<script>
+async function downloadPDF(type) {
+  const statusEl = document.getElementById('reportStatus');
+  statusEl.textContent = `⏳ Generating ${type} report...`;
+
+  try {
+    const response = await fetch(`/superadmin/reports/${type}`);
+    if (!response.ok) throw new Error('Report generation failed');
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${type}_report.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+
+    statusEl.textContent = `✅ ${type.charAt(0).toUpperCase() + type.slice(1)} report downloaded successfully.`;
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = `❌ Error downloading ${type} report.`;
+  }
+
+  setTimeout(() => (statusEl.textContent = ''), 5000);
+}
+</script>
+
+
+
+<!-- System Configuration -->
+<section id="config" class="home-section">
+  <h2>System Configuration</h2>
+  <ul>
+    <li>Salon Hours: <span id="configHours"></span> <button onclick="openConfigModal()">Edit</button></li>
+    <li>Max Daily Bookings: <span id="configBookings"></span> <button onclick="openConfigModal()">Edit</button></li>
+    <li>System Maintenance: <span id="configMaintenance"></span> <button onclick="openConfigModal()">Edit</button></li>
+  </ul>
+</section>
+
+<!-- Config Modal -->
+<div id="configModal" class="modal">
+  <div class="modal-content">
+    <h3>Edit System Configuration</h3>
+   <label>Salon Hours</label>
+<div style="display: flex; gap: 10px; align-items: center;">
+  <input type="time" id="editOpen" required>
+  <span>to</span>
+  <input type="time" id="editClose" required>
+</div>
+
+    <input type="number" id="editBookings" placeholder="Max Daily Bookings">
+    <input type="text" id="editMaintenance" placeholder="Maintenance Schedule">
+    <button class="save-btn" onclick="saveConfig()">Save</button>
+    <button class="cancel-btn" onclick="closeConfigModal()">Cancel</button>
+  </div>
+</div>
+
+
+  <!-- 🔐 Superadmin Role Protection + Logout -->
+  <script>
+    const user = JSON.parse(localStorage.getItem('loggedInUser'));
+    
+    if (!user || user.role !== 'superadmin') {
+      alert(user);
+      alert('Access restricted to Super Admins only.');
+      window.location.href = '/loginRegister.html';
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = '/loginRegister.html';
+    }
+  </script>
+
+  <!--  System Configuration Script -->
+  <script>
+  async function loadConfig() {
+    try {
+      const res = await fetch('/superadmin/config');
+      const data = await res.json();
+      if (data.success && data.config) {
+        document.getElementById('configHours').textContent = data.config.salon_hours;
+        document.getElementById('configBookings').textContent = data.config.max_daily_bookings;
+        document.getElementById('configMaintenance').textContent = data.config.maintenance_schedule;
+      }
+    } catch (err) {
+      console.error('Error loading config:', err);
+    }
+  }
+
+  function openConfigModal() {
+    const hours = document.getElementById('configHours').textContent.split('-');
+if (hours.length === 2) {
+  document.getElementById('editOpen').value = hours[0].trim();
+  document.getElementById('editClose').value = hours[1].trim();
+}
+
+    document.getElementById('editBookings').value = document.getElementById('configBookings').textContent;
+    document.getElementById('editMaintenance').value = document.getElementById('configMaintenance').textContent;
+    document.getElementById('configModal').style.display = 'flex';
+  }
+
+  function closeConfigModal() {
+    document.getElementById('configModal').style.display = 'none';
+  }
+
+  async function saveConfig() {
+const open = document.getElementById('editOpen').value;
+const close = document.getElementById('editClose').value;
+
+if (!open || !close) {
+  alert("Please select both opening and closing times.");
+  return;
+}
+
+if (close <= open) {
+  alert("Closing time must be later than opening time.");
+  return;
+}
+
+const salon_hours = `${open}-${close}`;
+
+const max_daily_bookings = document.getElementById('editBookings').value.trim();
+const maintenance_schedule = document.getElementById('editMaintenance').value.trim();
+
+// ✅ Validate salon hours format HH:mm-HH:mm
+const hoursRegex = /^([01]\d|2[0-3]):([0-5]\d)-([01]\d|2[0-3]):([0-5]\d)$/;
+if (!hoursRegex.test(salon_hours)) {
+  alert("Salon Hours must be in format HH:mm-HH:mm (e.g., 09:00-18:00)");
+  return;
+}
+
+// ✅ Validate bookings
+if (isNaN(max_daily_bookings) || parseInt(max_daily_bookings) <= 0) {
+  alert("Max Daily Bookings must be a positive number");
+  return;
+}
+
+
+    try {
+      const res = await fetch('/superadmin/config/1', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ salon_hours, max_daily_bookings, maintenance_schedule })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        closeConfigModal();
+        loadConfig();
+        alert('System configuration updated successfully');
+      } else {
+        alert('Failed to update configuration: ' + (data.message || 'Unknown error'));
+      }
+    } catch (err) {
+      alert('Network error: ' + err.message);
+    }
+  }
+
+  // 🔄 Auto-load config when page opens
+  document.addEventListener('DOMContentLoaded', () => {
+    loadConfig();
+  });
+  </script>
+
+<script>
+  async function toggle2FA() {
+    const status = document.getElementById("status");
+    const btn = document.getElementById("toggleBtn");
+    const enabled = status.textContent === "Disabled"; // if it's disabled, we want to enable it
+
+    // Update UI immediately
+    status.textContent = enabled ? "Enabled" : "Disabled";
+    btn.textContent = enabled ? "Disable" : "Enable";
+
+    // Send update to backend
+    await fetch("/update-2fa", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: 1, // replace with actual logged-in user's ID
+        enabled: enabled
+      }),
+    });
+  }
+</script>
+<script>
+const statusEl = document.getElementById("status");
+const btnEl = document.getElementById("toggleBtn");
+
+// Fetch current 2FA status on page load
+async function load2FAStatus() {
+  try {
+    const res = await fetch("http://localhost:3000/api/security-status");
+    const data = await res.json();
+
+    const isEnabled = data.enabled === 1;
+    statusEl.textContent = isEnabled ? "Enabled" : "Disabled";
+    btnEl.textContent = isEnabled ? "Disable" : "Enable";
+  } catch (err) {
+    console.error("Error fetching 2FA status:", err);
+    statusEl.textContent = "Error";
+    btnEl.textContent = "Toggle";
+  }
+}
+
+// Toggle 2FA
+async function toggleSetting(id) {
+  const isCurrentlyEnabled = statusEl.textContent === "Enabled";
+  const newEnabledState = !isCurrentlyEnabled;
+
+  // Optimistically update UI
+  statusEl.textContent = newEnabledState ? "Enabled" : "Disabled";
+  btnEl.textContent = newEnabledState ? "Disable" : "Enable";
+
+  try {
+    const res = await fetch("http://localhost:3000/update-security-setting", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, enabled: newEnabledState ? 1 : 0 })
+    });
+
+    const data = await res.json();
+    if (!data.success) {
+      alert("Failed to update setting!");
+      // Revert UI
+      statusEl.textContent = isCurrentlyEnabled ? "Enabled" : "Disabled";
+      btnEl.textContent = isCurrentlyEnabled ? "Disable" : "Enable";
+    }
+  } catch (err) {
+    console.error("Error updating setting:", err);
+    alert("An error occurred while updating.");
+    // Revert UI
+    statusEl.textContent = isCurrentlyEnabled ? "Enabled" : "Disabled";
+    btnEl.textContent = isCurrentlyEnabled ? "Disable" : "Enable";
+  }
+}
+
+// Initialize
+load2FAStatus();
+</script>
+<script>
+  const hamburger = document.getElementById('hamburger');
+  const sideNav = document.getElementById('sideNav');
+  const closeSide = document.getElementById('closeSide');
+  const backdrop = document.getElementById('backdrop');
+  const navLinks = document.querySelectorAll('.side-links a');
+
+  function openNav() {
+    sideNav.classList.add('open');
+    backdrop.classList.add('visible');
+    hamburger.setAttribute('aria-expanded', 'true');
+    sideNav.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeNav() {
+    sideNav.classList.remove('open');
+    backdrop.classList.remove('visible');
+    hamburger.setAttribute('aria-expanded', 'false');
+    sideNav.setAttribute('aria-hidden', 'true');
+  }
+
+  // Open and close behavior
+  hamburger.addEventListener('click', openNav);
+  closeSide.addEventListener('click', closeNav);
+  backdrop.addEventListener('click', closeNav);
+
+  // Close menu when clicking a link
+  navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      closeNav();
+    });
+  });
+
+  // Close menu on ESC
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && sideNav.classList.contains('open')) {
+      closeNav();
+    }
+  });
+
+  // Example logout
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    console.log('Logout clicked');
+  });
+</script>
+</body>
+</html>

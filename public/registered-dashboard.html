@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Dashboard - Princess Angel Salon</title>
+  <link rel="stylesheet" href="registered-dashboard.css" />
+</head>
+<body>
+<header class="header-nav">
+  <div class="nav-container">
+    <!-- Left: Title -->
+    <div class="logo">
+      <h1 id="welcome-text">Welcome!</h1>
+    </div>
+
+    <!-- Right: Hamburger -->
+    <button class="hamburger" id="hamburger" aria-label="Open menu" aria-controls="sideNav" aria-expanded="false">
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+    </button>
+  </div>
+
+  <!-- Sidebar Navigation (Right side) -->
+  <nav id="sideNav" class="side-nav" aria-hidden="true">
+    <div class="side-nav-inner">
+      <button class="close-side" id="closeSide" aria-label="Close menu">&times;</button>
+      <ul class="side-links">
+        <li><a href="#dashboard-summary">Dashboard</a></li>
+        <li><a href="#appointments">My Appointments</a></li>
+        <li><a href="#book">Book Appointment</a></li>
+        <!--<li><a href="#favorite-stylists">Favorite Stylists</a></li>-->
+        <li><a href="#profile">Profile</a></li>
+        <li><a href="#feedback">Feedback</a></li>
+        <li><a href="#notifications">Notifications</a></li>
+        <li><a href="#help">Help</a></li>
+        <li><a href="#" onclick="logout()">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Backdrop -->
+  <div class="backdrop" id="backdrop"></div>
+</header>
+
+
+
+  <!-- Dashboard Summary -->
+  <section id="dashboard-summary" class="home-section">
+    <h2>Dashboard Summary</h2>
+    <div class="summary-cards">
+      <div class="card">Upcoming: <span id="upcoming-count">0</span></div>
+      <div class="card">Completed: <span id="completed-count">0</span></div>
+      <div class="card">Canceled: <span id="canceled-count">0</span></div>
+    <!-- <div class="card">Favorite Stylist: <span id="favorite-stylist">-</span></div>--> 
+    </div>
+  </section>
+
+  <!-- Appointments -->
+  <section id="appointments" class="home-section">
+    <h2>My Appointments</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Service</th>
+          <th>Stylist</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="appointments-table"></tbody>
+    </table>
+  </section>
+
+  <div id="reschedule-modal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:#fff; padding:1rem; border:1px solid #ccc; box-shadow:0 0 10px rgba(0,0,0,0.2); z-index:999;">
+    <h3>Reschedule Appointment</h3>
+    <label>Date:</label>
+    <input type="date" id="reschedule-date" />
+    <label>Time:</label>
+    <input type="time" id="reschedule-time" />
+    <br/><br/>
+    <button onclick="confirmReschedule()">Confirm</button>
+    <button onclick="closeRescheduleModal()">Cancel</button>
+  </div>
+
+  <!-- Booking History -->
+  <section id="booking-history" class="home-section">
+    <h2>Booking History</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Service</th>
+          <th>Stylist</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="booking-history-table">
+        <!-- dynamically loaded completed appointments -->
+      </tbody>
+    </table>
+  </section>  
+  <!-- Book Appointment -->
+  <section id="book" class="home-section">
+    <h2>Book an Appointment</h2>
+    <form id="book-form">
+      <label>Service:</label>
+      <select id="service" required>
+        <option value="">Select a Service</option>
+        <option value="Haircut">Haircut</option>
+        <option value="Hair Coloring">Hair Coloring</option>
+        <option value="Facial">Facial</option>
+        <option value="Makeup">Makeup</option>
+      </select>
+
+      <label>Stylist:</label>
+      <select id="stylist" required>
+        <option value="">Loading stylists...</option>
+      </select>
+
+      <label>Date:</label>
+      <input type="date" id="date" required />
+
+      <label>Time:</label>
+      <input type="time" id="time" required />
+
+      <button type="submit">Book Appointment</button>
+    </form>
+  </section>
+
+  <!-- Favorite Stylists
+  <section id="favorite-stylists" class="home-section">
+    <h2>Favorite Stylists</h2>
+    <ul id="favorite-stylist-list">
+       dynamically loaded favorite stylists 
+    </ul>
+  </section>-->
+
+  <!-- Profile -->
+  <section id="profile" class="home-section">
+    <h2>My Profile</h2>
+    <form id="profile-form">
+      <label for="name">Full Name:</label>
+      <input type="text" id="name" />
+
+      <label for="email">Email:</label>
+      <input type="email" id="email" />
+
+      <label for="phone">Phone:</label>
+      <input type="tel" id="phone" />
+
+      <button type="submit">Update Profile</button>
+    </form>
+
+    <h3>Change Password</h3>
+    <form id="password-form">
+      <label for="current-password">Current Password:</label>
+      <input type="password" id="current-password" required />
+
+      <label for="new-password">New Password:</label>
+      <input type="password" id="new-password" required />
+
+      <button type="submit">Change Password</button>
+    </form>
+  </section>
+
+  <!-- Feedback -->
+  <section id="feedback" class="home-section">
+    <h2>Feedback</h2>
+    <form id="feedback-form">
+      <label for="stylistName">Stylist:</label>
+      <select id="stylistName" required>
+        <option value="">Loading stylists...</option>
+      </select>
+
+      <label for="rating">Rating (1 to 5):</label>
+      <input type="number" id="rating" min="1" max="5" required />
+
+      <label for="comments">Comments:</label>
+      <textarea id="comments" required></textarea>
+
+      <button type="submit">Submit Feedback</button>
+    </form>
+  </section>
+
+  <!-- Notifications -->
+  <section id="notifications" class="home-section">
+    <h2>Notifications</h2>
+    <ul id="notifications-list">
+      <!-- dynamically loaded notifications -->
+    </ul>
+  </section>
+
+  <!-- Help -->
+  <section id="help" class="home-section">
+    <h2>Help & FAQs</h2>
+    <div>
+      <h3>How to book an appointment?</h3>
+      <p>Choose a service, select a stylist, pick a date and time, then click 'Book Appointment'.</p>
+      
+      <h3>How to reschedule?</h3>
+      <p>Click 'Reschedule' in your appointment list and select a new date/time.</p>
+      
+      <h3>Troubleshooting?</h3>
+      <p>Contact support@princesssalon.com or call 123-456-7890.</p>
+    </div>
+  </section>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem('loggedInUser'));
+    const appointmentsTable = document.getElementById('appointments-table');
+    let rescheduleId = null;
+
+    function openRescheduleModal(id, currentDate, currentTime) {
+      rescheduleId = id;
+      document.getElementById('reschedule-date').value = currentDate;
+      document.getElementById('reschedule-time').value = currentTime;
+      document.getElementById('reschedule-modal').style.display = 'block';
+    }
+
+    function closeRescheduleModal() {
+      document.getElementById('reschedule-modal').style.display = 'none';
+      rescheduleId = null;
+    }
+
+async function loadAppointments() {
+  try {
+    const res = await fetch(`/api/user-appointments/${user.id}`);
+    const result = await res.json();
+    if (result.success) {
+      appointmentsTable.innerHTML = '';
+
+    // Filter only Approved or Rescheduled (case-insensitive)
+    const filteredAppointments = result.appointments.filter(app => {
+      const status = app.status?.trim().toLowerCase();
+      return status === 'approved' || status === 'rescheduled' || status === 'pending';
+    });
+
+      filteredAppointments.forEach(app => {
+        const tr = document.createElement('tr');
+        const formattedDate = new Date(app.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+        const [hours, minutes] = app.time.split(":");
+        const timeObj = new Date();
+        timeObj.setHours(hours, minutes);
+        const formattedTime = timeObj.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+
+        tr.innerHTML = `
+          <td>${formattedDate}</td>
+          <td>${formattedTime}</td>
+          <td>${app.service}</td>
+          <td>${app.stylist}</td>
+          <td>${app.status}</td>
+          <td>
+            <button onclick="openRescheduleModal(${app.id}, '${app.date}', '${app.time}')">Reschedule</button>
+            <button onclick="cancelAppointment(${app.id})">Cancel</button>
+          </td>
+        `;
+        appointmentsTable.appendChild(tr);
+      });
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+
+    async function confirmReschedule() {
+      const newDate = document.getElementById('reschedule-date').value;
+      const newTime = document.getElementById('reschedule-time').value;
+      if (!rescheduleId || !newDate || !newTime) return alert('Please fill out both fields.');
+      try {
+        const res = await fetch(`/api/reschedule-appointment/${rescheduleId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date: newDate, time: newTime })
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert('Appointment rescheduled.');
+          closeRescheduleModal();
+          loadAppointments();
+          updateDashboardSummary();
+          window.location.reload();
+        } else alert('Failed to reschedule.');
+      } catch (err) { console.error(err); alert('Error rescheduling appointment.'); }
+    }
+
+    async function cancelAppointment(id) {
+      if (!confirm('Cancel this appointment?')) return;
+      try {
+        const res = await fetch(`/api/cancel-appointment/${id}`, { method: 'PATCH' });
+        const result = await res.json();
+        if (result.success) {
+          alert('Appointment cancelled.');
+          loadAppointments();
+          updateDashboardSummary();
+          window.location.reload();
+        } else alert('Failed to cancel.');
+      } catch (err) { console.error(err); alert('Error cancelling appointment.'); }
+    }
+
+    async function loadStylists() {
+      const stylistSelect = document.getElementById('stylist');
+      const feedbackStylistSelect = document.getElementById('stylistName');
+      stylistSelect.innerHTML = '<option value="">Loading stylists...</option>';
+      feedbackStylistSelect.innerHTML = '<option value="">Loading stylists...</option>';
+      try {
+        const res = await fetch('/api/stylists');
+        const result = await res.json();
+        if (result.success) {
+          stylistSelect.innerHTML = '<option value="">Select a Stylist</option>';
+          feedbackStylistSelect.innerHTML = '<option value="">Select a Stylist</option>';
+          result.stylists.forEach(stylist => {
+            const option1 = document.createElement('option');
+            option1.value = stylist.name;
+            option1.textContent = stylist.name;
+            stylistSelect.appendChild(option1);
+            const option2 = option1.cloneNode(true);
+            feedbackStylistSelect.appendChild(option2);
+          });
+        } else {
+          stylistSelect.innerHTML = '<option value="">No stylists available</option>';
+          feedbackStylistSelect.innerHTML = '<option value="">No stylists available</option>';
+        }
+      } catch (err) { console.error(err); stylistSelect.innerHTML = feedbackStylistSelect.innerHTML = '<option value="">Error loading stylists</option>'; }
+    }
+
+ /* async function loadNotifications() {
+    try {
+      const response = await fetch('/api/notifications');
+      const data = await response.json();
+
+      if (data.success) {
+        const list = document.getElementById('notifications-list');
+        list.innerHTML = ''; // clear old notifications
+
+        if (data.notifications.length === 0) {
+          list.innerHTML = '<li>No notifications yet.</li>';
+          return;
+        }
+
+        // Add each notification
+        data.notifications.forEach(notif => {
+          const li = document.createElement('li');
+          li.textContent = ` ${notif.message}`;
+          list.appendChild(li);
+        });
+      } else {
+        console.error('Failed to load notifications:', data.message);
+      }
+    } catch (err) {
+      console.error('Error fetching notifications:', err);
+    }
+  }
+*/
+  // Load notifications on page load
+
+  async function loadNotifications() {
+  try {
+    // Get the logged-in user
+    const user = JSON.parse(localStorage.getItem('loggedInUser'));
+    if (!user || !user.id) {
+      console.warn('No logged-in user found.');
+      return;
+    }
+
+    // Fetch notifications using the user ID as a param
+    const response = await fetch(`/api/notificationss/${user.id}`);
+    const data = await response.json();
+
+    if (data.success) {
+      const list = document.getElementById('notifications-list');
+      list.innerHTML = ''; // clear old notifications
+
+      if (data.notifications.length === 0) {
+        list.innerHTML = '<li>No notifications yet.</li>';
+        return;
+      }
+
+      // Add each notification
+      data.notifications.forEach(notif => {
+        const li = document.createElement('li');
+        li.textContent = `${notif.message}`;
+        list.appendChild(li);
+      });
+    } else {
+      console.error('Failed to load notifications:', data.message);
+    }
+  } catch (err) {
+    console.error('Error fetching notifications:', err);
+  }
+}
+
+    async function updateDashboardSummary() {
+      const res = await fetch(`/api/user-appointments/${user.id}`);
+      const result = await res.json();
+            console.log(result);
+      if (result.success) {
+        const appointments = result.appointments;
+        document.getElementById('upcoming-count').textContent = appointments.filter(a => a.status === 'Approved').length;
+        document.getElementById('completed-count').textContent = appointments.filter(a => a.status === 'Completed').length;
+        document.getElementById('canceled-count').textContent = appointments.filter(a => a.status === 'Cancelled').length;
+        // Favorite stylist: pick the stylist with most bookings
+        const stylistCounts = {};
+        appointments.forEach(a => { stylistCounts[a.stylist] = (stylistCounts[a.stylist] || 0) + 1; });
+        const favorite = Object.entries(stylistCounts).sort((a,b) => b[1]-a[1])[0];
+        document.getElementById('favorite-stylist').textContent = favorite ? favorite[0] : '-';
+      }
+    }
+
+    document.getElementById('book-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const service = document.getElementById('service').value;
+      const stylist = document.getElementById('stylist').value;
+      const date = document.getElementById('date').value;
+      const time = document.getElementById('time').value;
+      try {
+        const res = await fetch('/api/book-appointment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id, service, stylist, date, time })
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert('Appointment booked!');
+          loadAppointments();
+          updateDashboardSummary();
+          this.reset();
+        } else alert(result.message || 'Booking failed.');
+      } catch (err) { console.error(err); alert('Error booking appointment.'); }
+    });
+
+    document.getElementById('feedback-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const stylist = document.getElementById('stylistName').value;
+      const rating = document.getElementById('rating').value;
+      const comments = document.getElementById('comments').value;
+      try {
+        const res = await fetch('/api/submit-feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id, stylist, rating, comments })
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert('Feedback submitted. Thank you!');
+          this.reset();
+        } else alert(result.message || 'Failed to submit feedback.');
+      } catch (err) { console.error(err); alert('Error submitting feedback.'); }
+    });
+
+    document.getElementById('profile-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const phone = document.getElementById('phone').value;
+      try {
+        const res = await fetch(`/api/update-profile/${user.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, phone })
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert('Profile updated.');
+          user.name = name;
+          user.email = email;
+          user.phone = phone;
+          localStorage.setItem('loggedInUser', JSON.stringify(user));
+        } else alert(result.message || 'Update failed.');
+      } catch (err) { console.error(err); alert('Error updating profile.'); }
+    });
+
+    document.getElementById('password-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const currentPassword = document.getElementById('current-password').value;
+      const newPassword = document.getElementById('new-password').value;
+      try {
+        const res = await fetch(`/api/change-password/${user.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ currentPassword, newPassword })
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert('Password changed.');
+          this.reset();
+        } else alert(result.message || 'Failed to change password.');
+      } catch (err) { console.error(err); alert('Error changing password.'); }
+    });
+
+    function logout() {
+      localStorage.removeItem('loggedInUser');
+      window.location.replace('index.html');
+    }
+
+    // Disable past dates & times
+    document.addEventListener("DOMContentLoaded", () => {
+      const dateInput = document.getElementById("date");
+      const timeInput = document.getElementById("time");
+      const rescheduleDateInput = document.getElementById("reschedule-date");
+      const rescheduleTimeInput = document.getElementById("reschedule-time");
+      const today = new Date().toISOString().split("T")[0];
+      if (dateInput) dateInput.min = today;
+      if (rescheduleDateInput) rescheduleDateInput.min = today;
+      function adjustMinTime(dateInput, timeInput) {
+        const selectedDate = dateInput.value;
+        const now = new Date();
+        if (selectedDate === now.toISOString().split("T")[0]) {
+          let hours = now.getHours();
+          let minutes = now.getMinutes();
+          minutes = Math.ceil(minutes / 15) * 15;
+          if (minutes === 60) { hours += 1; minutes = 0; }
+          timeInput.min = `${String(hours).padStart(2,"0")}:${String(minutes).padStart(2,"0")}`;
+        } else { timeInput.min = "00:00"; }
+      }
+      if (dateInput && timeInput) dateInput.addEventListener("change", () => adjustMinTime(dateInput, timeInput));
+      if (rescheduleDateInput && rescheduleTimeInput) rescheduleDateInput.addEventListener("change", () => adjustMinTime(rescheduleDateInput, rescheduleTimeInput));
+    });
+
+    // Initialize dashboard on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      if (!user) return (window.location.href = 'LoginRegister.html');
+
+      // Set welcome text
+      document.getElementById('welcome-text').textContent = `Welcome, ${user.name}!`;
+
+      // Populate profile fields
+      document.getElementById('name').value = user.name;
+      document.getElementById('email').value = user.email;
+      document.getElementById('phone').value = user.phone;
+
+      // Load data
+      loadAppointments();
+      loadStylists();
+      loadNotifications();
+      updateDashboardSummary();
+    });
+
+    // Load favorite stylists dynamically
+    async function loadFavoriteStylists() {
+      try {
+        const res = await fetch(`/api/user-favorite-stylists/${user.id}`);
+        const result = await res.json();
+        const list = document.getElementById('favorite-stylist-list');
+        list.innerHTML = '';
+        if (result.success && result.stylists.length) {
+          result.stylists.forEach(stylist => {
+            const li = document.createElement('li');
+            li.textContent = stylist.name;
+            const unfollowBtn = document.createElement('button');
+            unfollowBtn.textContent = 'Unfollow';
+            unfollowBtn.onclick = async () => {
+              await fetch(`/api/unfollow-stylist/${user.id}/${stylist.id}`, { method: 'DELETE' });
+              loadFavoriteStylists();
+            };
+            li.appendChild(unfollowBtn);
+            list.appendChild(li);
+          });
+        } else {
+          list.innerHTML = '<li>No favorite stylists yet.</li>';
+        }
+      } catch (err) { console.error(err); }
+    }
+
+    // Call to load favorite stylists on page load
+    window.addEventListener('DOMContentLoaded', loadFavoriteStylists);
+
+async function loadBookingHistory() {
+  try {
+    const res = await fetch(`/api/user-appointments/${user.id}`);
+    const result = await res.json();
+    const historyTable = document.getElementById('booking-history-table');
+
+    if (result.success) {
+      historyTable.innerHTML = '';
+
+      if (result.appointments.length === 0) {
+        historyTable.innerHTML = '<tr><td colspan="5">No bookings yet.</td></tr>';
+        return;
+      }
+
+      result.appointments.forEach(app => {
+        const formattedDate = new Date(app.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+        const [hours, minutes] = app.time.split(":");
+        const timeObj = new Date();
+        timeObj.setHours(hours, minutes);
+        const formattedTime = timeObj.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${formattedDate}</td>
+          <td>${formattedTime}</td>
+          <td>${app.service}</td>
+          <td>${app.stylist}</td>
+          <td>${app.status}</td>
+        `;
+        historyTable.appendChild(tr);
+      });
+    }
+  } catch (err) {
+    console.error('Error loading booking history:', err);
+  }
+}
+    // Call it on dashboard load
+    window.addEventListener('DOMContentLoaded', loadBookingHistory);
+  </script>
+
+<script>
+  const hamburger = document.getElementById('hamburger');
+  const sideNav = document.getElementById('sideNav');
+  const closeSide = document.getElementById('closeSide');
+  const backdrop = document.getElementById('backdrop');
+  const navLinks = document.querySelectorAll('.side-links a');
+
+  // Open sidebar
+  hamburger.addEventListener('click', () => {
+    sideNav.classList.add('open');
+    backdrop.classList.add('show');
+  });
+
+  // Close sidebar
+  const closeNav = () => {
+    sideNav.classList.remove('open');
+    backdrop.classList.remove('show');
+  };
+
+  closeSide.addEventListener('click', closeNav);
+  backdrop.addEventListener('click', closeNav);
+
+  // Automatically close when a link is clicked
+  navLinks.forEach(link => {
+    link.addEventListener('click', closeNav);
+  });
+</script>
+
+</body>
+</html>
